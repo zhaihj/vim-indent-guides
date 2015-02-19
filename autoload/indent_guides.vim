@@ -2,6 +2,31 @@
 " Homepage: http://github.com/nathanaelkane/vim-indent-guides
 
 "
+" Generate Random numbers.
+" 
+function Rand()
+    return str2nr(matchstr(reltimestr(reltime()), '\v\.@<=\d+')[1:])
+endfunction
+
+"
+" Shuffle list
+"
+function! s:shuffle(list)
+    let list = a:list
+    let pos = len(list)
+    while 1 < pos
+        let pos -= 1
+        let n = Rand() % pos
+        if n != pos
+           let temp = list[pos]
+           let list[pos] = list[n]
+           let list[n] = temp
+	   endif
+    endwhile
+    return list
+endfunction
+
+"
 " Toggles the indent guides on and off.
 "
 function! indent_guides#toggle()
@@ -45,7 +70,7 @@ function! indent_guides#enable()
   " loop through each indent level and define a highlight pattern
   " will automagically figure out whether to use tabs or spaces
   for l:level in range(s:start_level, s:indent_levels)
-    let l:group = 'IndentGuides' . ((l:level % 2 == 0) ? 'Even' : 'Odd')
+    let l:group = 'IndentGuides' . l:level % 10
     let l:column_start = (l:level - 1) * s:indent_size + 1
     let l:soft_pattern = indent_guides#indent_highlight_pattern(g:indent_guides_soft_pattern, l:column_start, s:guide_size)
     let l:hard_pattern = indent_guides#indent_highlight_pattern('\t', l:column_start, s:indent_size)
@@ -104,11 +129,16 @@ endfunction
 " gVim when colors can't be automatically calculated.
 "
 function! indent_guides#basic_highlight_colors()
-  let l:cterm_colors = (&g:background == 'dark') ? ['darkgrey', 'black'] : ['lightgrey', 'white']
-  let l:gui_colors   = (&g:background == 'dark') ? ['grey15', 'grey30']  : ['grey70', 'grey85']
+  let colorList = [
+			\'DarkBlue' , 'DarkGreen', 'DarkCyan', 'DarkRed', 'DarkMagenta', 'Brown', 'LightGray',
+			\'LightBlue', 'LightGreen', 'LightCyan', 'LightRed', 'LightMagenta', 
+			\'LightYellow']
 
-  exe 'hi IndentGuidesEven guibg=' . l:gui_colors[0] . ' guifg=' . l:gui_colors[1] . ' ctermbg=' . l:cterm_colors[0] . ' ctermfg=' . l:cterm_colors[1]
-  exe 'hi IndentGuidesOdd  guibg=' . l:gui_colors[1] . ' guifg=' . l:gui_colors[0] . ' ctermbg=' . l:cterm_colors[1] . ' ctermfg=' . l:cterm_colors[0]
+    let slist = s:shuffle(colorList)
+	for i in range(0,9)
+      let indcolor = slist[i]
+	  exe 'hi IndentGuides'. i .'  guibg=' . indcolor . ' guifg=none' . ' ctermbg=' . indcolor . ' ctermfg=none'
+	endfor 
 endfunction
 
 "
