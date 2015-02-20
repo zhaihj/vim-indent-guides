@@ -38,11 +38,44 @@ function s:InitVariable(var, value)
   endif
 endfunction
 
+"
+" Generate Random numbers.
+" 
+function Rand()
+    return str2nr(matchstr(reltimestr(reltime()), '\v\.@<=\d+')[1:])
+endfunction
+
+"
+" Shuffle list
+"
+function! s:shuffle(list)
+    let list = a:list
+    let pos = len(list)
+    while 1 < pos
+        let pos -= 1
+        let n = Rand() % pos
+        if n != pos
+           let temp = list[pos]
+           let list[pos] = list[n]
+           let list[n] = temp
+       endif
+    endwhile
+    return list
+endfunction
+
 " Fixed global variables
 let g:indent_guides_autocmds_enabled         = 0
 let g:indent_guides_color_hex_pattern        = '#[0-9A-Fa-f]\{6\}'
 let g:indent_guides_color_hex_guibg_pattern  = 'guibg=\zs' . g:indent_guides_color_hex_pattern . '\ze'
 let g:indent_guides_color_name_guibg_pattern = "guibg='\\?\\zs[0-9A-Za-z ]\\+\\ze'\\?"
+
+  let colorList = [
+	 \'DarkBlue' , 'DarkGreen', 'DarkCyan', 'DarkRed', 'DarkMagenta', 'Brown', 'LightGray',
+	 \'LightBlue', 'LightGreen', 'LightCyan', 'LightRed', 'LightMagenta', 
+	 \'LightYellow']
+
+let g:slist = s:shuffle(colorList)
+
 
 " Configurable global variables
 call s:InitVariable('g:indent_guides_indent_levels', 30)

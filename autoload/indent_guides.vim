@@ -2,31 +2,6 @@
 " Homepage: http://github.com/nathanaelkane/vim-indent-guides
 
 "
-" Generate Random numbers.
-" 
-function Rand()
-    return str2nr(matchstr(reltimestr(reltime()), '\v\.@<=\d+')[1:])
-endfunction
-
-"
-" Shuffle list
-"
-function! s:shuffle(list)
-    let list = a:list
-    let pos = len(list)
-    while 1 < pos
-        let pos -= 1
-        let n = Rand() % pos
-        if n != pos
-           let temp = list[pos]
-           let list[pos] = list[n]
-           let list[n] = temp
-	   endif
-    endwhile
-    return list
-endfunction
-
-"
 " Toggles the indent guides on and off.
 "
 function! indent_guides#toggle()
@@ -116,11 +91,7 @@ endfunction
 "
 function! indent_guides#highlight_colors()
   if s:auto_colors
-    if has('gui_running')
-      call indent_guides#gui_highlight_colors()
-    else
       call indent_guides#basic_highlight_colors()
-    endif
   endif
 endfunction
 
@@ -129,16 +100,10 @@ endfunction
 " gVim when colors can't be automatically calculated.
 "
 function! indent_guides#basic_highlight_colors()
-  let colorList = [
-			\'DarkBlue' , 'DarkGreen', 'DarkCyan', 'DarkRed', 'DarkMagenta', 'Brown', 'LightGray',
-			\'LightBlue', 'LightGreen', 'LightCyan', 'LightRed', 'LightMagenta', 
-			\'LightYellow']
-
-    let slist = s:shuffle(colorList)
-	for i in range(0,9)
-      let indcolor = slist[i]
-	  exe 'hi IndentGuides'. i .'  guibg=' . indcolor . ' guifg=none' . ' ctermbg=' . indcolor . ' ctermfg=none'
-	endfor 
+ 	for i in range(0,9)
+      let indcolor = g:slist[i]
+      exe 'hi IndentGuides'. i .'  guibg=' . indcolor . ' guifg=NONE' . ' ctermbg=' . indcolor . ' ctermfg=NONE'
+    endfor 
 endfunction
 
 "
@@ -210,12 +175,12 @@ endfunction
 " plugin is enabled.
 "
 function! indent_guides#init_script_vars()
-  let s:indent_size = &l:shiftwidth
+  let s:indent_size = &l:expandtab ? &l:shiftwidth : &l:tabstop
   let s:guide_size  = indent_guides#calculate_guide_size()
   let s:hi_normal   = indent_guides#capture_highlight('Normal')
 
   " remove 'font=<value>' from the s:hi_normal string (only seems to happen on Vim startup in Windows)
-  let s:hi_normal = substitute(s:hi_normal, ' font=[A-Za-z0-9:]\+', "", "")
+  let s:hi_normal = substitute(s:hi_normal, ' font=[A-Za-z0-9: ]\+', "", "")
 
   " shortcuts to the global variables - this makes the code easier to read
   let s:debug             = g:indent_guides_debug
